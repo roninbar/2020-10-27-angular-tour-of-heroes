@@ -24,10 +24,13 @@ export class HeroService {
     );
   }
 
+  /** GET hero by id. Will 404 if id not found. */
   getHero(id: number): Observable<Hero> {
-    // TODO: send the message _after_ fetching the hero.
-    this.log(`fetched hero id=${id}.`);
-    return of(HEROES.find((hero) => hero.id === id));
+    const url = `${this.heroesUrl}/${id}`;
+    return this.http.get<Hero>(url).pipe(
+      tap(() => this.log(`fetched hero id=${id}.`)),
+      catchError(this.handleError<Hero>(`getHero id=${id}`))
+    );
   }
 
   /**
@@ -41,9 +44,9 @@ export class HeroService {
     result?: T
   ): (
     error: { message: string },
-    caught: Observable<Hero[]>
+    caught: Observable<T>
   ) => ObservableInput<any> {
-    return function (error: any): Observable<T> {
+    return function(error: any): Observable<T> {
       // TODO: send the error to remote logging infrastructure.
       console.error(error); // log to console instead.
 
