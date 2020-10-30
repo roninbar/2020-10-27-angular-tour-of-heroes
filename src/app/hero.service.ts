@@ -4,7 +4,6 @@ import { Observable, ObservableInput, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { Hero } from './hero';
 import { MessageService } from './message.service';
-import { HEROES } from './mock-heroes';
 
 @Injectable({
   providedIn: 'root',
@@ -45,7 +44,7 @@ export class HeroService {
    */
   addHero(hero: Hero): Observable<Hero> {
     return this.http.post<Hero>(this.heroesUrl, hero, this.httpOptions).pipe(
-      tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}`)),
+      tap((newHero: Hero) => this.log(`added hero w/ id=${newHero.id}.`)),
       catchError(this.handleError<Hero>('addHero'))
     );
   }
@@ -56,8 +55,16 @@ export class HeroService {
    */
   updateHero(hero: Hero): Observable<any> {
     return this.http.put(this.heroesUrl, hero, this.httpOptions).pipe(
-      tap(() => this.log(`updated hero id=${hero.id}`)),
+      tap(() => this.log(`updated hero id=${hero.id}.`)),
       catchError(this.handleError('updateHero'))
+    );
+  }
+
+  deleteHero(hero: Hero | number): Observable<Hero> {
+    const id: number = typeof hero === 'number' ? hero : hero.id;
+    return this.http.delete(`${this.heroesUrl}/${id}`, this.httpOptions).pipe(
+      tap(() => this.log(`deleted hero w/ id=${id}.`)),
+      catchError(this.handleError('deleteHero'))
     );
   }
 
@@ -90,4 +97,3 @@ export class HeroService {
     this.messageService.add(`HeroService: ${message}`);
   }
 }
-
