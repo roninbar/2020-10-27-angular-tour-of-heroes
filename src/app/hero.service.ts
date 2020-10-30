@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, ObservableInput, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { Hero } from './hero';
 import { MessageService } from './message.service';
 import { HEROES } from './mock-heroes';
@@ -18,10 +18,10 @@ export class HeroService {
   ) {}
 
   getHeroes(): Observable<Hero[]> {
-    this.log('fetched heroes.');
-    return this.http
-      .get<Hero[]>(this.heroesUrl)
-      .pipe(catchError(this.handleError<Hero[]>('getHeroes', [])));
+    return this.http.get<Hero[]>(this.heroesUrl).pipe(
+      tap(() => this.log('fetched heroes.')),
+      catchError(this.handleError<Hero[]>('getHeroes', []))
+    );
   }
 
   getHero(id: number): Observable<Hero> {
@@ -43,7 +43,7 @@ export class HeroService {
     error: { message: string },
     caught: Observable<Hero[]>
   ) => ObservableInput<any> {
-    return function(error: any): Observable<T> {
+    return function (error: any): Observable<T> {
       // TODO: send the error to remote logging infrastructure.
       console.error(error); // log to console instead.
 
