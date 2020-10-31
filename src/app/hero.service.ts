@@ -69,6 +69,26 @@ export class HeroService {
   }
 
   /**
+   * GET heroes whose name contains search term.
+   * @param term Substring to match
+   */
+  searchHeroes(term: string): Observable<Hero[]> {
+    if (!term.trim()) {
+      return of([]);
+    }
+    return this.http.get<Hero[]>(`${this.heroesUrl}/?name=${term}`).pipe(
+      tap((matches) =>
+        this.log(
+          matches.length > 0
+            ? `found heroes matching "${term}"`
+            : `no heroes matching "${term}"`
+        )
+      ),
+      catchError(this.handleError<Hero[]>('searchHeroes', []))
+    );
+  }
+
+  /**
    * Handle Http operation that failed.
    * Let the app continue.
    * @param operation - name of the operation that failed
@@ -81,7 +101,7 @@ export class HeroService {
     error: { message: string },
     caught: Observable<T>
   ) => ObservableInput<any> {
-    return function(error: any): Observable<T> {
+    return (error: { message: string }): Observable<T> => {
       // TODO: send the error to remote logging infrastructure.
       console.error(error); // log to console instead.
 
